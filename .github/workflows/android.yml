@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: Build Kang Manga Android APK
+=======
+name: Build Android APK
+>>>>>>> 57fc1c49e6ccddafaf8641644f34d2b897004e08
 
 on:
   release:
@@ -21,6 +25,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Check API_BASE variable
+<<<<<<< HEAD
         env:
           API_BASE: ${{ vars.API_BASE }}
         run: |
@@ -50,6 +55,20 @@ jobs:
         run: chmod +x gradlew && ./gradlew assembleDebug
       - name: Stage APK
         run: cp Kang-Manga/android/app/build/outputs/apk/debug/app-debug.apk Kang-Manga.apk
+=======
+        run: |
+          if [ -z "${{ vars.API_BASE }}" ]; then echo "Set repo variable API_BASE (Settings > Secrets and variables > Actions > Variables) to your Vercel URL"; exit 1; fi
+      - run: npm install
+      - run: npm run build
+        env:
+          VITE_API_BASE: ${{ vars.API_BASE }}
+      - run: npx cap add android
+      - run: npx capacitor-assets generate --android --iconBackgroundColor '#0d0817' --splashBackgroundColor '#0d0817'
+      - run: npx cap sync android
+      - run: chmod +x gradlew && ./gradlew assembleDebug
+        working-directory: android
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Kang-Manga.apk
+>>>>>>> 57fc1c49e6ccddafaf8641644f34d2b897004e08
       - uses: actions/upload-artifact@v4
         with:
           name: Kang-Manga-apk

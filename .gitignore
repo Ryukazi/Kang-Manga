@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Node / Vite
 node_modules/
 dist/
@@ -14,3 +15,15 @@ Kang-Manga/android/
 .DS_Store
 .idea/
 .vscode/
+=======
+node_modules
+dist
+.env
+.env.*
+!.env.example
+android
+ios
+.vercel
+*.keystore
+*.jks
+>>>>>>> 57fc1c49e6ccddafaf8641644f34d2b897004e08
