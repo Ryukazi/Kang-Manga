@@ -1,0 +1,43 @@
+name: Build Android APK
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Check API_BASE variable
+        run: |
+          if [ -z "${{ vars.API_BASE }}" ]; then echo "Set repo variable API_BASE (Settings > Secrets and variables > Actions > Variables) to your Vercel URL"; exit 1; fi
+      - run: npm install
+      - run: npm run build
+        env:
+          VITE_API_BASE: ${{ vars.API_BASE }}
+      - run: npx cap add android
+      - run: npx capacitor-assets generate --android --iconBackgroundColor '#0d0817' --splashBackgroundColor '#0d0817'
+      - run: npx cap sync android
+      - run: chmod +x gradlew && ./gradlew assembleDebug
+        working-directory: android
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Kang-Manga.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kang-Manga-apk
+          path: Kang-Manga.apk
+      - uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          files: Kang-Manga.apk
