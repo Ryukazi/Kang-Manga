@@ -1,0 +1,2 @@
+The original ~/kang-manga-suite project and GitHub repository were not changed by creating this bundle.
+Do not delete the old project until you have verified the new setup.
