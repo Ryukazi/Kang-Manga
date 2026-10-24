@@ -1,0 +1,60 @@
+name: Build Kang Manga Android APK
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Check API_BASE variable
+        env:
+          API_BASE: ${{ vars.API_BASE }}
+        run: |
+          if [ -z "$API_BASE" ]; then
+            echo "Set repository variable API_BASE (Settings > Secrets and variables > Actions > Variables) to your deployed Vercel URL."
+            exit 1
+          fi
+      - name: Install dependencies
+        working-directory: Kang-Manga
+        run: npm install
+      - name: Build web app
+        working-directory: Kang-Manga
+        env:
+          VITE_API_BASE: ${{ vars.API_BASE }}
+        run: npm run build
+      - name: Add Android platform
+        working-directory: Kang-Manga
+        run: npx cap add android
+      - name: Generate app icons and splash screen
+        working-directory: Kang-Manga
+        run: npx capacitor-assets generate --android --iconBackgroundColor '#0d0817' --splashBackgroundColor '#0d0817'
+      - name: Sync Capacitor
+        working-directory: Kang-Manga
+        run: npx cap sync android
+      - name: Build APK
+        working-directory: Kang-Manga/android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+      - name: Stage APK
+        run: cp Kang-Manga/android/app/build/outputs/apk/debug/app-debug.apk Kang-Manga.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kang-Manga-apk
+          path: Kang-Manga.apk
+      - uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          files: Kang-Manga.apk

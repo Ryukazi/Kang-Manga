@@ -1,0 +1,16 @@
+# Node / Vite
+node_modules/
+dist/
+
+# Capacitor generated Android project
+Kang-Manga/android/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
